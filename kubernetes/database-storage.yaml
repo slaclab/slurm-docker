@@ -15,14 +15,14 @@ spec:
 
 ---
 
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: mysql-data
-spec:
-  storageClassName: ${namespace}--mysql-data
-  accessModes:
-    - "ReadWriteOnce"
-  resources:
-    requests:
-      storage: 100Gi
+#kind: PersistentVolumeClaim
+#apiVersion: v1
+#metadata:
+#  name: mysql-data
+#spec:
+#  storageClassName: ${namespace}--mysql-data
+#  accessModes:
+#    - "ReadWriteOnce"
+#  resources:
+#    requests:
+#      storage: 100Gi
