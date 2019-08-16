@@ -1,0 +1,28 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: ${namespace}--mysql-data
+  labels:
+    type: local
+spec:
+  storageClassName: ${namespace}--mysql-data
+  capacity:
+    storage: 10000Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /scratch/slurm/
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mysql-data
+spec:
+  storageClassName: ${namespace}--mysql-data
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: 100Gi
