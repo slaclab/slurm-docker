@@ -65,9 +65,7 @@ RUN set -ex \
     && chown slurm:root /var/spool/slurmd \
         /var/run/slurmd \
         /var/lib/slurmd \
-        /var/log/slurm \
-
-RUN /sbin/create-munge-key
+        /var/log/slurm 
 
 COPY slurm.conf /etc/slurm/slurm.conf
 COPY gres.conf /etc/slurm/gres.conf
@@ -77,8 +75,10 @@ COPY supervisord.conf /etc/
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/sbin/tini
 RUN chmod +x /usr/sbin/tini
+
+RUN /sbin/create-munge-key
 
 ENTRYPOINT ["/usr/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/bin/bash"]
