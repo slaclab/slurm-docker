@@ -1,21 +1,4 @@
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mysql
-  labels:
-    app: mysql
-data:
-  master.cnf: |
-    # Apply this config only on the master.
-    [mysqld]
-    log-bin
-  slave.cnf: |
-    [mysqld]
-    super-read-only
-
----
-
-apiVersion: v1
 kind: Service
 metadata:
   name: mysql
@@ -53,9 +36,9 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           value: password
         - name: MYSQL_DATABASE
-          value: wordpress
+          value: slurm_acct_db
         - name: MYSQL_USER
-          value: admin
+          value: slurm
         - name: MYSQL_PASSWORD
           value: secret
         ports:
@@ -73,14 +56,14 @@ spec:
             memory: 1Gi
         livenessProbe:
           exec:
-            command: ["mysqladmin", "ping"]
+            command: ["mysqladmin", "-ppassword", "ping"]
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           exec:
             # Check we can execute queries over TCP (skip-networking is off).
-            command: ["mysql", "-h", "127.0.0.1", "-e", "SELECT 1"]
+            command: ["mysql", "-h", "127.0.0.1", "-ppassword", "-e", "SELECT 1"]
           initialDelaySeconds: 5
           periodSeconds: 2
           timeoutSeconds: 1
