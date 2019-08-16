@@ -77,12 +77,11 @@ COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
 COPY slurmctld-supervisord.conf /etc/
 COPY slurmdbd-supervisord.conf /etc/
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY supervisord-eventlistener.sh /supervisord-eventlistener.sh
 
-ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/sbin/tini
+ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /usr/sbin/tini
 RUN chmod +x /usr/sbin/tini
 
-ENTRYPOINT ["/usr/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
-CMD ["/bin/bash"]
+ENTRYPOINT ["/usr/sbin/tini", "--", "/docker-entrypoint.sh"]
 
