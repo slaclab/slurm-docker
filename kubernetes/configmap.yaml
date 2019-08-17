@@ -1,0 +1,15 @@
+kind: ConfigMap
+metadata:
+  name: slurm-config
+apiVersion: v1
+data:
+
+  slurm.conf: |-
+
+$( cat ${slurm_conf_file}  | sed 's/^/    /' )
+
+  gres.conf: |-
+
+$( cat ${slurm_gres_file}  | sed 's/^/    /' )
+
+

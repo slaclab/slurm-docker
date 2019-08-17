@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmdbd
+  labels:
+    app: slurmdbd
+spec:
+  ports:
+  - name: slurmdbd
+    port: 6819
+  selector:
+    app: slurmdbd
+
+---
+
+apiVersion: apps/v1 
+kind: StatefulSet
+metadata:
+  name: slurmdbd
+spec:
+  selector:
+    matchLabels:
+      app: slurmdbd
+  serviceName: slurmdbd
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: slurmdbd
+    spec:
+      containers:
+      - name: slurmdbd
+        image: slaclab/slurm-docker:${slurmdbd_tag}
+        env:
+        - name: SUPERVISORD_CONFIG
+          value: "/etc/slurmdbd-supervisord.conf"
+        ports:
+        - containerPort: 6819
+        readinessProbe:
+          tcpSocket:
+            port: 6819
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 6819
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+

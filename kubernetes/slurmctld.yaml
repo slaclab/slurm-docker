@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmctld
+  labels:
+    app: slurmctld
+spec:
+  ports:
+  - name: slurmctld
+    port: 6817
+  selector:
+    app: slurmctld
+
+---
+
+apiVersion: apps/v1 
+kind: StatefulSet
+metadata:
+  name: slurmctld
+spec:
+  selector:
+    matchLabels:
+      app: slurmctld
+  serviceName: slurmctld 
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: slurmctld
+    spec:
+      containers:
+      - name: slurmctld
+        image: slaclab/slurm-docker:${slurmctld_tag}
+        ports:
+        - containerPort: 6817
+        volumeMounts:
+        - name: slurm-config
+          mountPath: /etc/slurm
+      volumes:
+      - name: slurm-config
+        configMap:
+          name: slurm-config
+          items:
+          - key: slurm.conf
+            path: slurm.conf
+          - key: gres.conf
+            path: gres.conf
+
