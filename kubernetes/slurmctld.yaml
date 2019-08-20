@@ -5,6 +5,7 @@ metadata:
   labels:
     app: slurmctld
 spec:
+  type: LoadBalancer
   ports:
   - name: slurmctld
     port: 6817
@@ -36,6 +37,16 @@ spec:
         volumeMounts:
         - name: slurm-config
           mountPath: /etc/slurm
+        readinessProbe:
+          tcpSocket:
+            port: 6818
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 6818
+          initialDelaySeconds: 15
+          periodSeconds: 10
       volumes:
       - name: slurm-config
         configMap:
