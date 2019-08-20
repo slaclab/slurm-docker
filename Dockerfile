@@ -1,6 +1,6 @@
 FROM centos:7
 
-ARG SLURM_TAG=slurm-19-05-1-2
+ARG SLURM_TAG=slurm-19-05-2-1
 
 RUN set -ex \
     && yum makecache fast \
@@ -43,7 +43,7 @@ RUN set -ex \
     && git clone https://github.com/SchedMD/slurm.git \
     && pushd slurm \
     && git checkout tags/$SLURM_TAG \
-    && ./configure --enable-debug --enable-front-end --prefix=/usr \
+    && ./configure --enable-debug --prefix=/usr \
        --sysconfdir=/etc/slurm --with-mysql_config=/usr/bin \
        --libdir=/usr/lib64 \
     && make install \
