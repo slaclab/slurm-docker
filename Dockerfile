@@ -2,6 +2,14 @@ FROM centos:7
 
 ARG SLURM_TAG=slurm-19-05-2-1
 
+ARG MUNGEUSER=891
+ARG SLURMUSER=892
+
+RUN groupadd -g $MUNGEUSER munge \
+    && useradd  -m -c "MUNGE Uid 'N' Gid Emporium" -d /var/lib/munge -u $MUNGEUSER -g munge  -s /sbin/nologin munge \
+    && groupadd -g $SLURMUSER slurm \
+    && useradd  -m -c "SLURM workload manager" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm
+
 RUN set -ex \
     && yum makecache fast \
     && yum -y update \
@@ -35,8 +43,10 @@ RUN set -ex \
         supervisor \
         wget \
         zlib-devel \
+        pam-devel numactl numactl-devel hwloc hwloc-devel lua lua-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad rpm-build mysql-devel rpm-build gcc  libssh2-devel  gtk2-devel  libibmad libibumad perl-Switch perl-ExtUtils-MakeMaker \
     && yum clean all \
     && rm -rf /var/cache/yum
+
 
 # Compile, build and install Slurm from Git source
 RUN set -ex \
@@ -55,8 +65,6 @@ RUN set -ex \
     && rm -rf slurm
 
 RUN set -ex \
-    && groupadd -r slurm  \
-    && useradd -r -g slurm slurm \
     && mkdir /etc/sysconfig/slurm \
         /var/spool/slurmd \
         /var/run/slurmd \
