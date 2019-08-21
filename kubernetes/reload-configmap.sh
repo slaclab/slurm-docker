@@ -14,7 +14,7 @@ kubectl delete -n ${namespace} configmap slurm-config
 kubectl create -n ${namespace} configmap slurm-config \
         --from-file=../slurm.conf \
         --from-file=../gres.conf \
-        --from-file=../cgroups.conf
+        --from-file=../cgroup.conf
 
 # kill slurmctld
 kubectl -n ${namespace} delete pod slurmctld-0 
