@@ -37,14 +37,17 @@ spec:
         volumeMounts:
         - name: slurm-config
           mountPath: /etc/slurm
+        - name: munge-key
+          mountPath: "/mnt/munge"
+          readOnly: true
         readinessProbe:
           tcpSocket:
-            port: 6818
-          initialDelaySeconds: 5
+            port: 6817
+          initialDelaySeconds: 10 
           periodSeconds: 10
         livenessProbe:
           tcpSocket:
-            port: 6818
+            port: 6817
           initialDelaySeconds: 15
           periodSeconds: 10
       volumes:
@@ -56,4 +59,7 @@ spec:
             path: slurm.conf
           - key: gres.conf
             path: gres.conf
-
+      - name: munge-key
+        secret:
+          secretName: munge
+          defaultMode: 256
