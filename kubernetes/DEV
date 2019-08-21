@@ -2,7 +2,7 @@ namespace=slurm-dev
 
 slurm_conf_file=../slurm.conf
 slurm_gres_file=../gres.conf
-slurm_cgroups_file=../cgroups.conf
+slurm_cgroup_file=../cgroup.conf
 
 slurmdbd_tag=20190819.0
 slurmctld_tag=20190821.0

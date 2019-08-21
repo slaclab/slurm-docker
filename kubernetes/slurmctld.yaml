@@ -59,8 +59,8 @@ spec:
             path: slurm.conf
           - key: gres.conf
             path: gres.conf
-          - key: cgroups.conf
-            path: cgroups.conf
+          - key: cgroup.conf
+            path: cgroup.conf
       - name: munge-key
         secret:
           secretName: munge
