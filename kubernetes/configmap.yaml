@@ -12,4 +12,6 @@ $( cat ${slurm_conf_file}  | sed 's/^/    /' )
 
 $( cat ${slurm_gres_file}  | sed 's/^/    /' )
 
+  cgroups.conf: |-
 
+$( cat ${slurm_cgroups_file}  | sed 's/^/    /' )
