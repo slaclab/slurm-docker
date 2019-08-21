@@ -44,9 +44,14 @@ RUN set -ex \
         wget \
         zlib-devel \
         pam-devel numactl numactl-devel hwloc hwloc-devel lua lua-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad rpm-build mysql-devel rpm-build gcc  libssh2-devel  gtk2-devel  libibmad libibumad perl-Switch perl-ExtUtils-MakeMaker \
+        sssd nss-pam-ldapd \
     && yum clean all \
     && rm -rf /var/cache/yum
 
+# setup accounts
+COPY sssd/nsswitch.conf /etc/nsswitch.conf
+COPY sssd/nslcd.conf /etc/nslcd.conf
+COPY sssd/sssd.conf /etc/sssd/sssd.conf
 
 # Compile, build and install Slurm from Git source
 RUN set -ex \
@@ -80,6 +85,8 @@ RUN /sbin/create-munge-key
 
 COPY slurm.conf /etc/slurm/slurm.conf
 COPY gres.conf /etc/slurm/gres.conf
+COPY cgroup.conf /etc/slurm/cgroup.conf
+
 COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
 
 COPY slurmctld-supervisord.conf /etc/
@@ -90,6 +97,8 @@ COPY supervisord-eventlistener.sh /supervisord-eventlistener.sh
 
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /usr/sbin/tini
 RUN chmod +x /usr/sbin/tini
+
+RUN chmod 600 /etc/sssd/sssd.conf
 
 ENTRYPOINT ["/usr/sbin/tini", "--", "/docker-entrypoint.sh"]
 
