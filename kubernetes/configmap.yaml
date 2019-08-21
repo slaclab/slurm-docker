@@ -15,3 +15,7 @@ $( cat ${slurm_gres_file}  | sed 's/^/    /' )
   cgroup.conf: |-
 
 $( cat ${slurm_cgroup_file}  | sed 's/^/    /' )
+
+  slurmdbd.conf: |-
+
+$( cat ${slurmdbd_conf_file}  | sed 's/^/    /' )

@@ -1,10 +1,11 @@
 namespace=slurm-dev
 
 slurm_conf_file=../slurm.conf
+slurmdbd_conf_file=../slurmdbd.conf
 slurm_gres_file=../gres.conf
 slurm_cgroup_file=../cgroup.conf
 
-slurmdbd_tag=20190819.0
-slurmctld_tag=20190821.0
+slurmdbd_tag=20190821.3
+slurmctld_tag=20190821.3
 
 munge_key=../munge.key
