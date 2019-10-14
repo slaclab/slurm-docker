@@ -5,6 +5,10 @@ slurmdbd_conf_file=../slurmdbd.conf
 slurm_gres_file=../gres.conf
 slurm_cgroup_file=../cgroup.conf
 
+mysql__nodeSelectors="group=infra slurm=mysql"
+slurmdbd__nodeSelectors="group=infra"
+slurmctld__nodeSelectors="group=infra"
+
 slurmdbd_tag=20190821.3
 slurmctld_tag=20190821.3
 
