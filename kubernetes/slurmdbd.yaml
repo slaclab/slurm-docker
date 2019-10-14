@@ -28,6 +28,8 @@ spec:
       labels:
         app: slurmdbd
     spec:
+      nodeSelector:
+$(list=(${slurmdbd__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[k]//\=/ }); echo "        ${kv[0]}: ${kv[1]}"; done)
       containers:
       - name: slurmdbd
         image: slaclab/slurm-docker:${slurmdbd_tag}
