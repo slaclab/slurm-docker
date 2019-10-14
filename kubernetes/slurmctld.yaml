@@ -6,8 +6,10 @@ metadata:
     app: slurmctld
 spec:
   type: LoadBalancer
+  #type: ClusterIP
   ports:
   - name: slurmctld
+    protocol: TCP
     port: 6817
   selector:
     app: slurmctld
@@ -29,11 +31,14 @@ spec:
       labels:
         app: slurmctld
     spec:
+      nodeSelector:
+$(list=(${slurmctld__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[k]//\=/ }); echo "        ${kv[0]}: ${kv[1]}"; done)
       containers:
       - name: slurmctld
         image: slaclab/slurm-docker:${slurmctld_tag}
         ports:
         - containerPort: 6817
+          name: slurmctld
         volumeMounts:
         - name: slurm-config
           mountPath: /etc/slurm
