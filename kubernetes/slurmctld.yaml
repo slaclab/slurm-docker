@@ -4,6 +4,8 @@ metadata:
   name: slurmctld
   labels:
     app: slurmctld
+  annotations:
+    metallb.universe.tf/address-pool: internal
 spec:
   type: LoadBalancer
   #type: ClusterIP

@@ -4,7 +4,10 @@ metadata:
   name: slurmdbd
   labels:
     app: slurmdbd
+  annotations:
+    metallb.universe.tf/address-pool: internal
 spec:
+  type: LoadBalancer
   ports:
   - name: slurmdbd
     port: 6819
