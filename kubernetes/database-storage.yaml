@@ -1,11 +1,11 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: ${namespace}--mysql-data
+  name: slurm-dev--mysql-data
   labels:
     type: local
 spec:
-  storageClassName: ${namespace}--mysql-data
+  storageClassName: slurm-dev--mysql-data
   capacity:
     storage: 10000Gi
   accessModes:

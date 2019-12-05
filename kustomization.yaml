@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: slurm-dev
+
+patchesStrategicMerge:
+- nodeSelectors.yaml
+- metallb.yaml
+
+configMapGenerator:
+- name: slurm-config
+  files:
+  - slurm.conf
+  - gres.conf
+  - cgroup.conf
+  - slurmdbd.conf
+
+secretGenerator:
+- name: munge
+  behavior: replace
+  files:
+  - munge.key
+
+resources:
+- kubernetes/database-storage.yaml
+- kubernetes/secrets.yaml
+- kubernetes/database.yaml
+- kubernetes/slurmdbd.yaml
+- kubernetes/slurmctld.yaml
+
+images:
+- name: slaclab/slurm-docker
+  newTag: '20190821.3'
+
+commonLabels:
+  app: slurm
+  env: dev

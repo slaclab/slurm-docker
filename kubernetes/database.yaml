@@ -28,8 +28,6 @@ spec:
       labels:
         app: mysql
     spec:
-      nodeSelector:
-$(list=(${mysql__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[k]//\=/ }); echo "        ${kv[0]}: ${kv[1]}"; done)
       containers:
       - name: mysql
         image: mysql:5.7

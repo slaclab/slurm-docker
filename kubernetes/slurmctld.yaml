@@ -4,8 +4,6 @@ metadata:
   name: slurmctld
   labels:
     app: slurmctld
-  annotations:
-    metallb.universe.tf/address-pool: internal
 spec:
   type: LoadBalancer
   #type: ClusterIP
@@ -33,11 +31,9 @@ spec:
       labels:
         app: slurmctld
     spec:
-      nodeSelector:
-$(list=(${slurmctld__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[k]//\=/ }); echo "        ${kv[0]}: ${kv[1]}"; done)
       containers:
       - name: slurmctld
-        image: slaclab/slurm-docker:${slurmctld_tag}
+        image: slaclab/slurm-docker:latest
         ports:
         - containerPort: 6817
           name: slurmctld
