@@ -4,12 +4,16 @@ kind: Kustomization
 namespace: slurm-dev
 
 configMapGenerator:
-- name: slurm-config
+- name: slurmdbd-config
   files:
-  - slurm.conf
-  - gres.conf
-  - cgroup.conf
-  - slurmdbd.conf
+  - etc/slurmdbd.conf
+- name: slurmctld-config
+  files:
+  - etc/slurm.conf
+  - etc/slac.conf
+  - etc/gres.conf
+  - etc/cgroup.conf
+  - etc/cgroup_allowed_devices_file.conf
 
 secretGenerator:
 - name: munge

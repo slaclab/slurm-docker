@@ -38,7 +38,7 @@ spec:
         - containerPort: 6817
           name: slurmctld
         volumeMounts:
-        - name: slurm-config
+        - name: slurmctld-config
           mountPath: /etc/slurm
         - name: munge-key
           mountPath: "/mnt/munge"
@@ -54,12 +54,14 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 10
       volumes:
-      - name: slurm-config
+      - name: slurmctld-config
         configMap:
-          name: slurm-config
+          name: slurmctld-config
           items:
           - key: slurm.conf
             path: slurm.conf
+          - key: slac.conf
+            path: slac.conf
           - key: gres.conf
             path: gres.conf
           - key: cgroup.conf

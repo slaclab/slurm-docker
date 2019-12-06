@@ -48,18 +48,18 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 10
         volumeMounts:
-        - name: slurm-config
+        - name: slurmdbd-config
           mountPath: /etc/slurm
         - name: munge-key
           mountPath: "/mnt/munge"
           readOnly: true
       volumes:
-      - name: slurm-config
+      - name: slurmdbd-config
         configMap:
-          name: slurm-config
+          name: slurmdbd-config
           items:
-          - key: slurm.conf
-            path: slurm.conf
+          #- key: slurm.conf
+         #   path: slurm.conf
           - key: slurmdbd.conf
             path: slurmdbd.conf
       - name: munge-key
