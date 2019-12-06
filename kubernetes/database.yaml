@@ -9,7 +9,7 @@ spec:
   - name: mysql
     port: 3306
   selector:
-    app: mysql
+    role: mysql
 
 ---
 
@@ -20,13 +20,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: mysql
+      role: mysql
   serviceName: mysql
   replicas: 1
   template:
     metadata:
       labels:
-        app: mysql
+        role: mysql
     spec:
       containers:
       - name: mysql

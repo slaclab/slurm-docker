@@ -1,8 +1,0 @@
-commonLabels:
-  app: slurm
-resources:
-  - database.yaml
-  - slurm.yaml
-#configMapGenerator:
-#  - name: slurmctld-map
-#    files:

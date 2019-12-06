@@ -5,11 +5,12 @@ metadata:
   labels:
     app: slurmdbd
 spec:
+  type: LoadBalancer
   ports:
   - name: slurmdbd
     port: 6819
   selector:
-    app: slurmdbd
+    role: slurmdbd
 
 ---
 
@@ -20,17 +21,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: slurmdbd
+      role: slurmdbd
   serviceName: slurmdbd
   replicas: 1
   template:
     metadata:
       labels:
-        app: slurmdbd
+        role: slurmdbd
     spec:
       containers:
       - name: slurmdbd
-        image: slaclab/slurm-docker:${slurmdbd_tag}
+        image: slaclab/slurm-docker:latest
         env:
         - name: SUPERVISORD_CONFIG
           value: "/etc/slurmdbd-supervisord.conf"
@@ -46,5 +47,23 @@ spec:
             port: 6819
           initialDelaySeconds: 15
           periodSeconds: 10
-
-
+        volumeMounts:
+        - name: slurmdbd-config
+          mountPath: /etc/slurm
+        - name: munge-key
+          mountPath: "/mnt/munge"
+          readOnly: true
+      volumes:
+      - name: slurmdbd-config
+        configMap:
+          name: slurmdbd-config
+          items:
+          #- key: slurm.conf
+         #   path: slurm.conf
+          - key: slurmdbd.conf
+            path: slurmdbd.conf
+      - name: munge-key
+        secret:
+          secretName: munge
+          defaultMode: 256
+  volumeClaimTemplates: []

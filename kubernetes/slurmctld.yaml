@@ -6,11 +6,13 @@ metadata:
     app: slurmctld
 spec:
   type: LoadBalancer
+  #type: ClusterIP
   ports:
   - name: slurmctld
+    protocol: TCP
     port: 6817
   selector:
-    app: slurmctld
+    role: slurmctld
 
 ---
 
@@ -21,21 +23,22 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: slurmctld
+      role: slurmctld
   serviceName: slurmctld 
   replicas: 1
   template:
     metadata:
       labels:
-        app: slurmctld
+        role: slurmctld
     spec:
       containers:
       - name: slurmctld
-        image: slaclab/slurm-docker:${slurmctld_tag}
+        image: slaclab/slurm-docker:latest
         ports:
         - containerPort: 6817
+          name: slurmctld
         volumeMounts:
-        - name: slurm-config
+        - name: slurmctld-config
           mountPath: /etc/slurm
         - name: munge-key
           mountPath: "/mnt/munge"
@@ -51,17 +54,20 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 10
       volumes:
-      - name: slurm-config
+      - name: slurmctld-config
         configMap:
-          name: slurm-config
+          name: slurmctld-config
           items:
           - key: slurm.conf
             path: slurm.conf
+          - key: slac.conf
+            path: slac.conf
           - key: gres.conf
             path: gres.conf
-          - key: cgroups.conf
-            path: cgroups.conf
+          - key: cgroup.conf
+            path: cgroup.conf
       - name: munge-key
         secret:
           secretName: munge
           defaultMode: 256
+  volumeClaimTemplates: []
