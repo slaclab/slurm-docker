@@ -5,7 +5,6 @@ metadata:
   annotations:
     metallb.universe.tf/address-pool: internal
     metallb.universe.tf/allow-shared-ip: slurm-dev
-
 ---
 
 apiVersion: v1

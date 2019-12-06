@@ -12,7 +12,7 @@ spec:
     protocol: TCP
     port: 6817
   selector:
-    app: slurmctld
+    role: slurmctld
 
 ---
 
@@ -23,13 +23,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: slurmctld
+      role: slurmctld
   serviceName: slurmctld 
   replicas: 1
   template:
     metadata:
       labels:
-        app: slurmctld
+        role: slurmctld
     spec:
       containers:
       - name: slurmctld
@@ -68,3 +68,4 @@ spec:
         secret:
           secretName: munge
           defaultMode: 256
+  volumeClaimTemplates: []

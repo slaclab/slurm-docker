@@ -3,10 +3,6 @@ kind: Kustomization
 
 namespace: slurm-dev
 
-patchesStrategicMerge:
-- nodeSelectors.yaml
-- metallb.yaml
-
 configMapGenerator:
 - name: slurm-config
   files:
@@ -22,11 +18,17 @@ secretGenerator:
   - munge.key
 
 resources:
+- kubernetes/ns.yaml
 - kubernetes/database-storage.yaml
 - kubernetes/secrets.yaml
 - kubernetes/database.yaml
 - kubernetes/slurmdbd.yaml
 - kubernetes/slurmctld.yaml
+
+patchesStrategicMerge:
+- nodeSelectors.yaml
+- metallb.yaml
+- loadBalancer.yaml
 
 images:
 - name: slaclab/slurm-docker

@@ -10,7 +10,7 @@ spec:
   - name: slurmdbd
     port: 6819
   selector:
-    app: slurmdbd
+    role: slurmdbd
 
 ---
 
@@ -21,13 +21,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: slurmdbd
+      role: slurmdbd
   serviceName: slurmdbd
   replicas: 1
   template:
     metadata:
       labels:
-        app: slurmdbd
+        role: slurmdbd
     spec:
       containers:
       - name: slurmdbd
@@ -66,5 +66,4 @@ spec:
         secret:
           secretName: munge
           defaultMode: 256
-
-
+  volumeClaimTemplates: []
