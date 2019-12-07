@@ -36,7 +36,7 @@ patchesStrategicMerge:
 
 images:
 - name: slaclab/slurm-docker
-  newTag: '20190821.3'
+  newTag: '20191206.3'
 
 commonLabels:
   app: slurm
