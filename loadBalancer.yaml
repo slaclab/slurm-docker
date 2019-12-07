@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: slurmdbd
+  name: slurmdbd-0
 spec:
   loadBalancerIP: 172.23.99.171
 ---
