@@ -41,13 +41,15 @@ RUN set -ex \
         tix-devel \
         tk \
         tk-devel \
-        supervisor \
         wget \
         zlib-devel \
         pam-devel numactl numactl-devel hwloc hwloc-devel lua lua-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad rpm-build mysql-devel rpm-build gcc  libssh2-devel  gtk2-devel  libibmad libibumad perl-Switch perl-ExtUtils-MakeMaker \
         sssd nss-pam-ldapd \
+        python-setuptools \
     && yum clean all \
     && rm -rf /var/cache/yum
+
+RUN easy_install supervisor
 
 # setup accounts
 COPY sssd/nsswitch.conf /etc/nsswitch.conf
@@ -89,6 +91,10 @@ COPY etc/gres.conf /etc/slurm/gres.conf
 COPY etc/cgroup.conf /etc/slurm/cgroup.conf
 
 COPY etc/slurmdbd.conf /etc/slurm/slurmdbd.conf
+
+ENV MUNGE_ARGS=''
+ENV SLURMDBD_ARGS=''
+ENV SLURMCTLD_ARGS=''
 
 COPY slurmctld-supervisord.conf /etc/
 COPY slurmdbd-supervisord.conf /etc/

@@ -13,6 +13,6 @@ chown slurm:slurm /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slu
 
 # pick up relevant supervisord conf
 SUPERVISORD_CONFIG=${SUPERVISORD_CONFIG:-/etc/slurmctld-supervisord.conf}
-echo "Starting with $SUPERVISORD_CONFIG..."
+echo "Starting with supervisord " $(/usr/bin/supervisord --version) " with $SUPERVISORD_CONFIG..."
 exec /usr/bin/supervisord --configuration $SUPERVISORD_CONFIG
 
