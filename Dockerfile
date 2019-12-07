@@ -1,13 +1,14 @@
 FROM centos:7
 
-ARG SLURM_TAG=slurm-19-05-2-1
+ARG SLURM_TAG=slurm-19-05-4-1
 
 ARG MUNGEUSER=891
-ARG SLURMUSER=892
+ARG SLURMUSER=16924
+ARG SLURMGROUP=1034
 
 RUN groupadd -g $MUNGEUSER munge \
     && useradd  -m -c "MUNGE Uid 'N' Gid Emporium" -d /var/lib/munge -u $MUNGEUSER -g munge  -s /sbin/nologin munge \
-    && groupadd -g $SLURMUSER slurm \
+    && groupadd -g $SLURMGROUP slurm \
     && useradd  -m -c "SLURM workload manager" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm
 
 RUN set -ex \
@@ -83,11 +84,11 @@ RUN set -ex \
 # hmmm
 RUN /sbin/create-munge-key
 
-COPY slurm.conf /etc/slurm/slurm.conf
-COPY gres.conf /etc/slurm/gres.conf
-COPY cgroup.conf /etc/slurm/cgroup.conf
+COPY etc/slurm.conf /etc/slurm/slurm.conf
+COPY etc/gres.conf /etc/slurm/gres.conf
+COPY etc/cgroup.conf /etc/slurm/cgroup.conf
 
-COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
+COPY etc/slurmdbd.conf /etc/slurm/slurmdbd.conf
 
 COPY slurmctld-supervisord.conf /etc/
 COPY slurmdbd-supervisord.conf /etc/
