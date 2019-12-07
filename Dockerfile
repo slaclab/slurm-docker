@@ -92,10 +92,7 @@ COPY etc/cgroup.conf /etc/slurm/cgroup.conf
 
 COPY etc/slurmdbd.conf /etc/slurm/slurmdbd.conf
 
-ENV MUNGE_ARGS=''
-ENV SLURMDBD_ARGS=''
-ENV SLURMCTLD_ARGS=''
-
+ENV MUNGE_ARGS='' SLURMDBD_ARGS='' SLURMCTLD_ARGS=''
 COPY slurmctld-supervisord.conf /etc/
 COPY slurmdbd-supervisord.conf /etc/
 
