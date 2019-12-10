@@ -46,14 +46,14 @@ RUN set -ex \
         pam-devel numactl numactl-devel hwloc hwloc-devel lua lua-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad rpm-build mysql-devel rpm-build gcc  libssh2-devel  gtk2-devel  libibmad libibumad perl-Switch perl-ExtUtils-MakeMaker \
         sssd nss-pam-ldapd \
         python-setuptools \
+        golang \
     && yum clean all \
     && rm -rf /var/cache/yum
 
 RUN easy_install supervisor
 
 # setup accounts
-COPY sssd/nsswitch.conf /etc/nsswitch.conf
-COPY sssd/nslcd.conf /etc/nslcd.conf
+COPY sssd/nsswitch.conf sssd/nslcd.conf /etc/
 COPY sssd/sssd.conf /etc/sssd/sssd.conf
 
 # Compile, build and install Slurm from Git source
@@ -70,9 +70,7 @@ RUN set -ex \
     && install -D -m644 etc/slurmdbd.conf.example /etc/slurm/slurmdbd.conf.example \
     && install -D -m644 contribs/slurm_completion_help/slurm_completion.sh /etc/profile.d/slurm_completion.sh \
     && popd \
-    && rm -rf slurm
-
-RUN set -ex \
+    && rm -rf slurm \
     && mkdir /etc/sysconfig/slurm \
         /var/spool/slurmd \
         /var/run/slurmd \
@@ -81,23 +79,17 @@ RUN set -ex \
     && chown slurm:root /var/spool/slurmd \
         /var/run/slurmd \
         /var/lib/slurmd \
-        /var/log/slurm 
+        /var/log/slurm \
+    && /sbin/create-munge-key
 
-# hmmm
-RUN /sbin/create-munge-key
+COPY etc/slurm.conf etc/gres.conf etc/cgroup.conf etc/cgroup_allowed_devices_file.conf etc/slurmdbd.conf  /etc/slurm/
 
-COPY etc/slurm.conf /etc/slurm/slurm.conf
-COPY etc/gres.conf /etc/slurm/gres.conf
-COPY etc/cgroup.conf /etc/slurm/cgroup.conf
-
-COPY etc/slurmdbd.conf /etc/slurm/slurmdbd.conf
-
+# configs
 ENV MUNGE_ARGS='' SLURMDBD_ARGS='' SLURMCTLD_ARGS=''
-COPY slurmctld-supervisord.conf /etc/
-COPY slurmdbd-supervisord.conf /etc/
+COPY slurmctld-supervisord.conf slurmdbd-supervisord.conf  /etc/
 
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY supervisord-eventlistener.sh /supervisord-eventlistener.sh
+# startup
+COPY docker-entrypoint.sh supervisord-eventlistener.sh /
 
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /usr/sbin/tini
 RUN chmod +x /usr/sbin/tini
