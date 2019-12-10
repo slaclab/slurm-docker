@@ -82,6 +82,19 @@ RUN set -ex \
         /var/log/slurm \
     && /sbin/create-munge-key
 
+# install monitoring
+RUN set -ex \
+    && git clone https://github.com/vpenso/prometheus-slurm-exporter.git \
+    && pushd prometheus-slurm-exporter \
+    && export GOPATH=$(pwd) \
+    && go get github.com/prometheus/client_golang/prometheus \
+    && go get github.com/sirupsen/logrus \
+    && go get gopkg.in/alecthomas/kingpin.v2 \
+    && make build \
+    && mv bin/prometheus-slurm-exporter /usr/bin/ \
+    && popd \
+    && rm -rf prometheus-slurm-exporter
+
 COPY etc/slurm.conf etc/gres.conf etc/cgroup.conf etc/cgroup_allowed_devices_file.conf etc/slurmdbd.conf  /etc/slurm/
 
 # configs
