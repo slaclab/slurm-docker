@@ -34,6 +34,11 @@ spec:
       containers:
       - name: slurmctld
         image: slaclab/slurm-docker:latest
+        env:
+        - name: SUPERVISORD_CONFIG
+          value: "/etc/slurmctld-supervisord.conf"
+        - name: SLURMCTLD_ARGS
+          value: "-vvv"
         ports:
         - containerPort: 6817
           name: slurmctld
@@ -43,6 +48,8 @@ spec:
         - name: munge-key
           mountPath: "/mnt/munge"
           readOnly: true
+        - name: cache
+          mountPath: /var/lib/slurmd/
         readinessProbe:
           tcpSocket:
             port: 6817
@@ -70,4 +77,6 @@ spec:
         secret:
           secretName: munge
           defaultMode: 256
+      - name: cache
+        emptyDir: {}
   volumeClaimTemplates: []
