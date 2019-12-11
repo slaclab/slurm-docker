@@ -1,15 +1,15 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: slurm-dev--mysql-data
+  name: slurm-dev--slurmctld-0-data
   labels:
     type: local
 spec:
-  storageClassName: slurm-dev--mysql-data
+  storageClassName: slurm-dev--slurmctld-0-data
   capacity:
     storage: 10000Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /scratch/slurm/database/
+    path: /scratch/slurm/slurmctld-0/
 

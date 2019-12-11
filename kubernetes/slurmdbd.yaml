@@ -4,6 +4,7 @@ metadata:
   name: slurmdbd-0
   labels:
     app: slurmdbd
+    rank: primary
 spec:
   type: LoadBalancer
   ports:
@@ -11,6 +12,7 @@ spec:
     port: 6819
   selector:
     role: slurmdbd
+    rank: primary
 
 ---
 
@@ -22,12 +24,14 @@ spec:
   selector:
     matchLabels:
       role: slurmdbd
+      rank: primary
   serviceName: slurmdbd
   replicas: 1
   template:
     metadata:
       labels:
         role: slurmdbd
+        rank: primary
     spec:
       containers:
       - name: slurmdbd
@@ -36,7 +40,7 @@ spec:
         - name: SUPERVISORD_CONFIG
           value: "/etc/slurmdbd-supervisord.conf"
         - name: SLURMDBD_ARGS
-          value: "-vvv"
+          value: "-v"
         ports:
         - containerPort: 6819
         readinessProbe:
@@ -60,12 +64,11 @@ spec:
         configMap:
           name: slurmdbd-config
           items:
-          #- key: slurm.conf
-         #   path: slurm.conf
           - key: slurmdbd.conf
             path: slurmdbd.conf
       - name: munge-key
         secret:
           secretName: munge
           defaultMode: 256
+  # TODO: add stateful volume
   volumeClaimTemplates: []

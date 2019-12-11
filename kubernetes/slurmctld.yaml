@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: slurmctld
+  name: slurmctld-0
   labels:
-    app: slurmctld
+    app: slurmctld-0
 spec:
   type: LoadBalancer
   #type: ClusterIP
@@ -13,7 +13,7 @@ spec:
     port: 6817
   selector:
     role: slurmctld
-
+    rank: primary
 ---
 
 apiVersion: apps/v1 
@@ -24,12 +24,14 @@ spec:
   selector:
     matchLabels:
       role: slurmctld
-  serviceName: slurmctld 
+      rank: primary
+  serviceName: slurmctld-0
   replicas: 1
   template:
     metadata:
       labels:
         role: slurmctld
+        rank: primary
     spec:
       containers:
       - name: slurmctld
@@ -38,7 +40,7 @@ spec:
         - name: SUPERVISORD_CONFIG
           value: "/etc/slurmctld-supervisord.conf"
         - name: SLURMCTLD_ARGS
-          value: "-vvv"
+          value: "-v"
         ports:
         - containerPort: 6817
           name: slurmctld
@@ -67,6 +69,8 @@ spec:
           items:
           - key: slurm.conf
             path: slurm.conf
+          - key: job_submit.lua
+            path: job_submit.lua
           - key: slac.conf
             path: slac.conf
           - key: gres.conf
@@ -77,6 +81,12 @@ spec:
         secret:
           secretName: munge
           defaultMode: 256
-      - name: cache
-        emptyDir: {}
-  volumeClaimTemplates: []
+  volumeClaimTemplates:
+  - metadata:
+      name: cache
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "slurm-dev--slurmctld-0-data"
+      resources:
+        requests:
+          storage: 10Gi
