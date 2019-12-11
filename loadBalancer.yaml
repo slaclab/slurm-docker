@@ -8,6 +8,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: slurmctld
+  name: slurmctld-0
 spec:
   loadBalancerIP: 172.23.99.171

@@ -10,6 +10,7 @@ configMapGenerator:
 - name: slurmctld-config
   files:
   - etc/slurm.conf
+  - etc/job_submit.lua
   - etc/slac.conf
   - etc/gres.conf
   - etc/cgroup.conf
@@ -27,6 +28,7 @@ resources:
 - kubernetes/secrets.yaml
 - kubernetes/database.yaml
 - kubernetes/slurmdbd.yaml
+- kubernetes/slurmctld-storage.yaml
 - kubernetes/slurmctld.yaml
 
 patchesStrategicMerge:

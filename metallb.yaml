@@ -10,7 +10,7 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
-  name: slurmctld
+  name: slurmctld-0
   annotations:
     metallb.universe.tf/address-pool: internal
     metallb.universe.tf/allow-shared-ip: slurm-dev
