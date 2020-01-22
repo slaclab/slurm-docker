@@ -86,7 +86,7 @@ spec:
       name: cache
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "slurm-dev--slurmctld-0-data"
+      storageClassName: "slurm-prod--slurmctld-data"
       resources:
         requests:
           storage: 10Gi

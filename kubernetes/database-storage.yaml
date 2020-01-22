@@ -1,15 +1,23 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: slurm-dev--mysql-data
+  name: slurm-prod--mysql-data
   labels:
     type: local
 spec:
-  storageClassName: slurm-dev--mysql-data
+  storageClassName: slurm-prod--mysql-data
   capacity:
     storage: 10000Gi
   accessModes:
     - ReadWriteOnce
-  hostPath:
+  #hostPath:
+  local:
     path: /scratch/slurm/database/
-
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-dev01

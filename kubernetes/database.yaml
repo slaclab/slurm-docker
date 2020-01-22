@@ -74,7 +74,7 @@ spec:
       name: mysql-data
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: slurm-dev--mysql-data
+      storageClassName: slurm-prod--mysql-data
       resources:
         requests:
           storage: 10Gi

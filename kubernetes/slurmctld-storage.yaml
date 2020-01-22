@@ -1,15 +1,23 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: slurm-dev--slurmctld-0-data
+  name: slurm-prod--slurmctld-data
   labels:
     type: local
 spec:
-  storageClassName: slurm-dev--slurmctld-0-data
+  storageClassName: slurm-prod--slurmctld-data
   capacity:
     storage: 10000Gi
   accessModes:
     - ReadWriteOnce
-  hostPath:
-    path: /scratch/slurm/slurmctld-0/
+  local:
+    path: /scratch/slurm/slurmctld/
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-dev01
 
