@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmdbd-0
+  labels:
+    app: slurmdbd
+    rank: primary
+spec:
+  type: LoadBalancer
+  ports:
+  - name: slurmdbd
+    port: 6819
+  selector:
+    role: slurmdbd
+    statefulset.kubernetes.io/pod-name: slurmdbd-0
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmdbd-1
+  labels:
+    app: slurmdbd
+    rank: secondary
+spec:
+  type: LoadBalancer
+  ports:
+  - name: slurmdbd
+    port: 6819
+  selector:
+    role: slurmdbd
+    statefulset.kubernetes.io/pod-name: slurmdbd-1
+
+---
+
+apiVersion: apps/v1 
+kind: StatefulSet
+metadata:
+  name: slurmdbd
+spec:
+  selector:
+    matchLabels:
+      role: slurmdbd
+  serviceName: slurmdbd
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        role: slurmdbd
+    spec:
+      containers:
+      - name: slurmdbd
+        image: slaclab/slurm-docker:latest
+        env:
+        - name: SUPERVISORD_CONFIG
+          value: "/etc/slurmdbd-supervisord.conf"
+        - name: SLURMDBD_ARGS
+          value: "-v"
+        ports:
+        - containerPort: 6819
+        readinessProbe:
+          exec:
+            command:
+            - pidof 
+            - slurmdbd
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "if [ `ss -nlp -H '( sport = 6819 )' | wc -l` == 1 ]; then exit 0; else exit 127; fi"
+        #  tcpSocket:
+        #    port: 6819
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        volumeMounts:
+        - name: slurmdbd-config
+          mountPath: /etc/slurm
+        - name: munge-key
+          mountPath: "/mnt/munge"
+          readOnly: true
+      volumes:
+      - name: slurmdbd-config
+        configMap:
+          name: slurmdbd-config
+          items:
+          - key: slurmdbd.conf
+            path: slurmdbd.conf
+          - key: slurm-for-slurmdbd.conf
+            path: slurm.conf
+          #- key: slurm.conf
+          #  path: slurm.conf
+          #- key: slac.conf
+          #  path: slac.conf
+      - name: munge-key
+        secret:
+          secretName: munge
+          defaultMode: 256
+  # TODO: add stateful volume
+  volumeClaimTemplates: []

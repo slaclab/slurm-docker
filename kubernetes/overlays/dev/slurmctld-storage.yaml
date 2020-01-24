@@ -1,0 +1,95 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: slurm-dev--slurmctld-data-0
+  labels:
+    type: local
+spec:
+  storageClassName: slurm-dev--slurmctld-data
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /scratch/slurm/slurmctld/slurmctld-data-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-dev02
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: slurm-dev--slurmctld-spool-0
+  labels:
+    type: local
+spec:
+  storageClassName: slurm-dev--slurmctld-spool
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /scratch/slurm/slurmctld/slurmctld-spool-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-dev02
+
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: slurm-dev--slurmctld-data-1
+  labels:
+    type: local
+spec:
+  storageClassName: slurm-dev--slurmctld-data
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /scratch/slurm/slurmctld/slurmctld-data-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-dev03
+
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: slurm-dev--slurmctld-spool-1
+  labels:
+    type: local
+spec:
+  storageClassName: slurm-dev--slurmctld-spool
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /scratch/slurm/slurmctld/slurmctld-spool-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-dev03
