@@ -9,8 +9,8 @@ if [ -e /mnt/munge/munge.key ]; then
 fi
 
 # setup slurm
-chown slurm:slurm /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm
-chmod go-rwx /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm
+chown -R slurm:slurm /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm
+chmod -R go-rwx /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm
 
 # pick up relevant supervisord conf
 SUPERVISORD_CONFIG=${SUPERVISORD_CONFIG:-/etc/slurmctld-supervisord.conf}
