@@ -1,6 +1,6 @@
 FROM centos:7
 
-ARG SLURM_TAG=slurm-19-05-4-1
+ARG SLURM_TAG=slurm-19-05-5-1
 
 ARG MUNGEUSER=891
 ARG SLURMUSER=16924
@@ -86,14 +86,11 @@ RUN set -ex \
 RUN set -ex \
     && git clone https://github.com/vpenso/prometheus-slurm-exporter.git \
     && pushd prometheus-slurm-exporter \
-    && export GOPATH=$(pwd) \
-    && go get github.com/prometheus/client_golang/prometheus \
-    && go get github.com/sirupsen/logrus \
-    && go get gopkg.in/alecthomas/kingpin.v2 \
+    && mkdir /tmp/build && export GOPATH=/tmp/build \
     && make build \
-    && mv bin/prometheus-slurm-exporter /usr/bin/ \
+    && mv /prometheus-slurm-exporter/bin/prometheus-slurm-exporter /usr/bin/ \
     && popd \
-    && rm -rf prometheus-slurm-exporter
+    && rm -rf /prometheus-slurm-exporter /tmp/build
 
 COPY etc/slurm.conf etc/gres.conf etc/cgroup.conf etc/cgroup_allowed_devices_file.conf etc/slurmdbd.conf  /etc/slurm/
 
