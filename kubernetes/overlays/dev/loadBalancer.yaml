@@ -3,11 +3,26 @@ kind: Service
 metadata:
   name: slurmdbd-0
 spec:
-  loadBalancerIP: 172.23.99.171
+  loadBalancerIP: 172.23.99.160
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: slurmctld-0
 spec:
-  loadBalancerIP: 172.23.99.171
+  loadBalancerIP: 172.23.99.160
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmdbd-1
+spec:
+  loadBalancerIP: 172.23.99.161
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmctld-1
+spec:
+  loadBalancerIP: 172.23.99.161
