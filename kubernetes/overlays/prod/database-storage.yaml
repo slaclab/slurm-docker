@@ -1,0 +1,76 @@
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: slurm-prod--mysql-data-0
+  labels:
+    type: local
+spec:
+  storageClassName: slurm-prod--mysql-data
+  capacity:
+    storage: 10000Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /opt/slurm-prod/database/mysql-0/
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ocio-gpu02
+
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: slurm-prod--mysql-data-1
+  labels:
+    type: local
+spec:
+  storageClassName: slurm-prod--mysql-data
+  capacity:
+    storage: 10000Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /opt/slurm-prod/database/mysql-1/
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-dev02
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: slurm-prod--mysql-data-2
+  labels:
+    type: local
+spec:
+  storageClassName: slurm-prod--mysql-data
+  capacity:
+    storage: 10000Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /opt/slurm-prod/database/mysql-2/
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-dev03
+

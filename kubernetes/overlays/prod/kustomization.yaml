@@ -1,0 +1,44 @@
+namespace: slurm-prod
+
+bases:
+- ../../base
+
+resources:
+- ns.yaml
+- database-storage.yaml
+- slurmctld-storage.yaml
+
+patchesStrategicMerge:
+#- nodeSelectors.yaml
+- database-patch.yaml
+- slurmctld-patch.yaml
+- metallb.yaml
+- loadBalancer.yaml
+
+configMapGenerator:
+- name: slurmdbd-config
+  files:
+  - etc/slurmdbd.conf
+  - etc/slurm-for-slurmdbd.conf
+- name: slurmctld-config
+  files:
+  - etc/slurm.conf
+  - etc/job_submit.lua
+  - etc/slac.conf
+  - etc/gres.conf
+  - etc/cgroup.conf
+  - etc/cgroup_allowed_devices_file.conf
+
+secretGenerator:
+- name: munge
+  files:
+  - etc/munge.key
+
+commonLabels:
+  app: slurm
+  environment: prod
+
+images:
+- name: slaclab/slurm-docker
+  newTag: '20200122.1'
+

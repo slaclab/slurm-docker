@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmdbd-0
+  annotations:
+    metallb.universe.tf/address-pool: internal
+    metallb.universe.tf/allow-shared-ip: slurm-prod--primary
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmctld-0
+  annotations:
+    metallb.universe.tf/address-pool: internal
+    metallb.universe.tf/allow-shared-ip: slurm-prod--primary
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmdbd-1
+  annotations:
+    metallb.universe.tf/address-pool: internal
+    metallb.universe.tf/allow-shared-ip: slurm-prod--secondary
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: slurmctld-1
+  annotations:
+    metallb.universe.tf/address-pool: internal
+    metallb.universe.tf/allow-shared-ip: slurm-prod--secondary
