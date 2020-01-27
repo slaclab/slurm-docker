@@ -4,9 +4,9 @@ bases:
 - ../../base
 
 resources:
+- ns.yaml
 - database-storage.yaml
 - slurmctld-storage.yaml
-# add var lib spool?
 
 patchesStrategicMerge:
 #- nodeSelectors.yaml
