@@ -7,7 +7,7 @@ metadata:
 spec:
   storageClassName: slurm-dev--slurmctld-data
   capacity:
-    storage: 20Gi
+    storage: 1Gi
   accessModes:
     - ReadWriteOnce
   local:
@@ -32,7 +32,7 @@ metadata:
 spec:
   storageClassName: slurm-dev--slurmctld-spool
   capacity:
-    storage: 20Gi
+    storage: 1Gi
   accessModes:
     - ReadWriteOnce
   local:

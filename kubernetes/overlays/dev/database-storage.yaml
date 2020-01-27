@@ -58,7 +58,7 @@ metadata:
 spec:
   storageClassName: slurm-dev--mysql-data
   capacity:
-    storage: 10000Gi
+    storage: 100Gi
   accessModes:
     - ReadWriteOnce
   local:
