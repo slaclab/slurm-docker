@@ -4,8 +4,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql
-  labels:
-    app: mysql
 spec:
   ports:
   - name: mysql
@@ -19,8 +17,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql-rw
-  labels:
-    app: mysql
 spec:
   ports:
   - name: mysql
@@ -55,6 +51,9 @@ data:
     loose-group_replication_ip_whitelist=10.0.0.0/8
     loose-group_replication_single_primary_mode=OFF
     event_scheduler=OFF
+    innodb_buffer_pool_size=3072M
+    innodb_log_file_size=64M
+    innodb_lock_wait_timeout=900
   int-mysql.sh: |
     #!/bin/bash
     set -ex
@@ -233,8 +232,8 @@ spec:
           mountPath: /mnt/config-map
         resources:
           requests:
-            cpu: 500m
-            memory: 1Gi
+            cpu: 2
+            memory: 4Gi
         livenessProbe:
           exec:
             command: ["mysqladmin", "ping"]
@@ -278,12 +277,12 @@ spec:
       - name: config-map
         configMap:
           name: mysql
-  volumeClaimTemplates:
-  - metadata:
-      name: mysql-data
-    spec:
-      storageClassName: slurm-dev--mysql-data
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 20Gi
+  volumeClaimTemplates: []
+#  - metadata:
+#      name: mysql-data
+#    spec:
+#      storageClassName: slurm-dev--mysql-data
+#      accessModes: ["ReadWriteOnce"]
+#      resources:
+#        requests:
+#          storage: 20Gi
