@@ -43,7 +43,7 @@ spec:
     matchLabels:
       role: slurmctld
   serviceName: slurmctld
-  replicas: 2
+  replicas: 2 
   template:
     metadata:
       labels:
@@ -109,19 +109,21 @@ spec:
         secret:
           secretName: munge
           defaultMode: 256
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "slurm-dev--slurmctld-data"
-      resources:
-        requests:
-          storage: 10Gi
-  - metadata:
-      name: spool
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "slurm-dev--slurmctld-spool"
-      resources:
- 
+  volumeClaimTemplates: []
+#  - metadata:
+#      name: data
+#    spec:
+#      accessModes: [ "ReadWriteOnce" ]
+#      storageClassName: "slurm-dev--slurmctld-data"
+#      resources:
+#        requests:
+#          storage: 10Gi
+#  - metadata:
+#      name: spool
+#    spec:
+#      accessModes: [ "ReadWriteOnce" ]
+#      storageClassName: "slurm-dev--slurmctld-spool"
+#      resources:
+#        requests:
+#          storage: 10Gi
+# 
