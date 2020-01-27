@@ -43,7 +43,7 @@ spec:
     matchLabels:
       role: slurmdbd
   serviceName: slurmdbd
-  replicas: 1
+  replicas: 1 
   template:
     metadata:
       labels:
@@ -71,7 +71,7 @@ spec:
             command:
             - /bin/bash
             - -c
-            - "if [ `ss -nlp -H '( sport = 6819 )' | wc -l` == 1 ]; then exit 0; else exit 127; fi"
+            - "sacctmgr list cluster && if [ `ss -nlp -H '( sport = 6819 )' | wc -l` == 1 ]; then exit 0; else exit 127; fi"
         #  tcpSocket:
         #    port: 6819
           initialDelaySeconds: 15
