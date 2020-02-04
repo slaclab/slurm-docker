@@ -92,7 +92,7 @@ RUN set -ex \
     && popd \
     && rm -rf /prometheus-slurm-exporter /tmp/build
 
-COPY etc/slurm.conf etc/gres.conf etc/cgroup.conf etc/cgroup_allowed_devices_file.conf etc/slurmdbd.conf  /etc/slurm/
+# COPY etc/slurm.conf etc/gres.conf etc/cgroup.conf etc/cgroup_allowed_devices_file.conf etc/slurmdbd.conf  /etc/slurm/
 
 # configs
 ENV MUNGE_ARGS='' SLURMDBD_ARGS='' SLURMCTLD_ARGS=''
