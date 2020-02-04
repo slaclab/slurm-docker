@@ -11,7 +11,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   local:
-    path: /scratch/slurm/database/mysql-0/
+    path: /scratch/slurm-dev/database/mysql-0/
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -19,7 +19,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - os-dev02
+          - os-dev01
 
 
 ---
@@ -37,7 +37,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   local:
-    path: /scratch/slurm/database/mysql-1/
+    path: /scratch/slurm-dev/database/mysql-1/
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -45,7 +45,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - os-dev02
+          - os-dev01
 
 ---
 
@@ -62,7 +62,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   local:
-    path: /scratch/slurm/database/mysql-2/
+    path: /scratch/slurm-dev/database/mysql-2/
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -70,5 +70,5 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - os-dev02
+          - os-dev01
 
