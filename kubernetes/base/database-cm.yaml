@@ -12,6 +12,7 @@ spec:
   selector:
     role: database
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -20,6 +21,10 @@ spec:
   ports:
   - name: mysql
     port: 3306
+  - name: xtrabackup
+    port: 3307
+  - name: group
+    port: 24901
   selector:
     role: database
     statefulset.kubernetes.io/pod-name: mysql-0
@@ -33,10 +38,15 @@ spec:
   ports:
   - name: mysql
     port: 3306
+  - name: xtrabackup
+    port: 3307
+  - name: group
+    port: 24901
   selector:
     role: database
     statefulset.kubernetes.io/pod-name: mysql-1
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -45,10 +55,13 @@ spec:
   ports:
   - name: mysql
     port: 3306
+  - name: xtrabackup
+    port: 3307
+  - name: group
+    port: 24901
   selector:
     role: database
     statefulset.kubernetes.io/pod-name: mysql-2
-
 ---
 # Client service for connecting to any MySQL instance for reads.
 apiVersion: v1
@@ -103,9 +116,9 @@ data:
     echo server-id=$((100 + $ordinal)) >> /mnt/conf.d/server-id.cnf
     # Copy appropriate conf.d files from config-map to emptyDir.
     cp /mnt/config-map/master-master.cnf /mnt/conf.d/
-    echo "loose-group_replication_local_address=mysql-$ordinal.mysql:24901" >> /mnt/conf.d/master-master.cnf
-    echo "loose-group_replication_group_seeds=mysql-0.mysql:24901,mysql-1.mysql:24901,mysql-2.mysql:24901" >> /mnt/conf.d/master-master.cnf
-    echo "report_host=mysql-$ordinal.mysql" >> /mnt/conf.d/master-master.cnf
+    echo "loose-group_replication_local_address=mysql-$ordinal:24901" >> /mnt/conf.d/master-master.cnf
+    echo "loose-group_replication_group_seeds=mysql-0:24901,mysql-1:24901,mysql-2:24901" >> /mnt/conf.d/master-master.cnf
+    echo "report_host=mysql-$ordinal" >> /mnt/conf.d/master-master.cnf
     if [[ $ordinal -ne 0 ]]; then
       echo "super_read_only=ON" >> /mnt/conf.d/master-master.cnf
     fi
@@ -121,7 +134,7 @@ data:
     [[ $ordinal -eq 0 ]] && exit 0
     # Add support to crashed master
     # Clone data from previous peer.
-    ncat --recv-only mysql-$(($ordinal-1)).mysql 3307 | xbstream -x -C /var/lib/mysql
+    ncat --recv-only mysql-$(($ordinal-1)) 3307 | xbstream -x -C /var/lib/mysql
     # Prepare the backup.
     xtrabackup --prepare --target-dir=/var/lib/mysql
     date +%s > /var/lib/mysql/timestamp
@@ -132,28 +145,32 @@ data:
     # Generate mysql server-id from pod ordinal index.
     [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
     ordinal=${BASH_REMATCH[1]}
-    echo "Waiting for mysqld to be ready (accepting connections)"
-    until mysql -h mysql-$ordinal.mysql -e "SELECT 1"; do sleep 1; done
+
+    # setup
     if [[ $ordinal -eq 0 && ! -f /var/lib/mysql/configured ]]; then
       echo "Setting up initial configuration..."
+      until mysql -h 127.0.0.1 -e "SELECT 1"; do sleep 2; done
       bash /mnt/config-map/config.sh
       date > /var/lib/mysql/configured
     fi
-    # Mysql-0 need always be bootstraped if there are no others nodes
-    # TODO: 1) handle scale down to 0 situation - mysql-0 need to by bootstraped after scale up
-    # TODO: 2) handle mysql-0 crash - no need for bootstrap
-    replication_group_members=`timeout 5  mysql -h mysql-active -sNe \
-     "SELECT count(*) FROM performance_schema.replication_group_members WHERE MEMBER_STATE='ONLINE'" || echo 0`
-    if [[ $ordinal -eq 0 && $replication_group_members -eq 0 && ! -f /var/lib/mysql/bootstraped ]]; then
-    # This handle TODO 1) and 2)
+
+    # wait for group communication to be ready
+    echo "Waiting for mysqld to be ready (accepting connections)"
+    until mysql -u rpl_user --password=password -h mysql-$ordinal.mysql -e "SELECT 1"; do sleep 2; done
+
+    # setup group membership
+    replication_group_members=`mysql -h mysql-active -sNe \
+     "SELECT count(*) FROM performance_schema.replication_group_members WHERE MEMBER_STATE='ONLINE'"`
+    echo "Found $replication_group_members active..."
+    if [[ $ordinal -eq 0 && ! -f /var/lib/mysql/bootstraped && $replication_group_members -eq 0 ]]; then
       echo "Bootstraping group replication cluster..."
       bash /mnt/config-map/bootstrap-repl.sh
       date > /var/lib/mysql/bootstraped
     else
-    # If data are copied by xtrabackup, set @@GLOBAL.GTID_PURGED and start replication
-       echo "Starting group replication..."
-       cd /var/lib/mysql
-       bash /mnt/config-map/repl.sh
+      # If data are copied by xtrabackup, set @@GLOBAL.GTID_PURGED and start replication
+      echo "Starting group replication..."
+      cd /var/lib/mysql
+      bash /mnt/config-map/repl.sh
     fi
     cd /var/lib/mysql
     # Start a server to send backups when requested by peers.
@@ -173,10 +190,10 @@ data:
     set -ex
     cd /var/lib/mysql
     if [[ -f xtrabackup_binlog_info ]]; then
+      echo "starting replication from backup..."
       [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
       ordinal=${BASH_REMATCH[1]}
       [[ `cat xtrabackup_binlog_info | tr -d  '\n'` =~ ^(.*?)[[:space:]]+(.*?)[[:space:]]+(.*?)$ ]] || exit 1
-      mv xtrabackup_binlog_info xtrabackup_binlog_info.bck
       mysql -h 127.0.0.1 -e "SET global event_scheduler=OFF"
       mysql -h 127.0.0.1 -e "SET SQL_LOG_BIN=OFF"
       mysql -h 127.0.0.1 -e "RESET MASTER"
@@ -184,146 +201,32 @@ data:
       mysql -h 127.0.0.1 -e "SET @@GLOBAL.GTID_PURGED='${BASH_REMATCH[3]}'"
       mysql -h 127.0.0.1 -e "CHANGE MASTER TO MASTER_USER='rpl_user', MASTER_PASSWORD='password' FOR CHANNEL 'group_replication_recovery'"
       mysql -h 127.0.0.1 -e "SET SQL_LOG_BIN=ON"
-      mysql -h 127.0.0.1 -e "START GROUP_REPLICATION"
+      mysql -h 127.0.0.1 -e "START GROUP_REPLICATION" 2>&1 | awk '/group is already running/{ exit 0 }{ print $0; exit 127 }'
       mysql -h 127.0.0.1 -e "SET global event_scheduler=ON"
+      mv xtrabackup_binlog_info xtrabackup_binlog_info.bck
     else
-      mysql -h 127.0.0.1 -e "START GROUP_REPLICATION"
+      echo "starting replication...."
+      mysql -h 127.0.0.1 -e "START GROUP_REPLICATION" 2>&1 | awk '/group is already running/{ exit 0 }{ print $0; exit 127 }'
     fi
+    echo "done!"
   bootstrap-repl.sh: |
     #!/bin/bash
     set -ex
+    mysql -h 127.0.0.1 -e "SET SQL_LOG_BIN=OFF"
     mysql -h 127.0.0.1 -e "SET GLOBAL group_replication_bootstrap_group=ON"
-    mysql -h 127.0.0.1 -e "START GROUP_REPLICATION"
+    mysql -h 127.0.0.1 -e "START GROUP_REPLICATION" 2>&1 | awk '/group is already running/{ exit 0 }{ print $0; exit 127 }'
     mysql -h 127.0.0.1 -e "SET GLOBAL group_replication_bootstrap_group=OFF"
     mysql -h 127.0.0.1 -e "SET global event_scheduler=ON"
     mysql -h 127.0.0.1 -e "SET SQL_LOG_BIN=ON"
-  #data1.sql: |
-  #  CREATE DATABASE slurm_acct_db;
-  #  USE slurm_acct_db;
-  #  CREATE TABLE t1 (c1 INT PRIMARY KEY, c2 TEXT NOT NULL);
-  #  INSERT INTO t1 VALUES (1, 'Luis');
-  #data2.sql: |
-  #  INSERT INTO test.t1 VALUES (2, 'Krol');
-  #data3.sql: |
-  #  INSERT INTO test.t1 VALUES (3, 'Psy');
   readiness.sh: |
     #!/bin/bash
     set -ex
-    mysql -sN -h 127.0.0.1 -e "SELECT * FROM performance_schema.replication_group_members WHERE MEMBER_HOST LIKE '$HOSTNAME.mysql%' AND MEMBER_STATE='ONLINE'" | grep $HOSTNAME.mysql
+    #[[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+    #ordinal=${BASH_REMATCH[1]}
+    #MEMBERS=$(mysql -sN -h 127.0.0.1 -e "SELECT COUNT(*) FROM performance_schema.replication_group_members" )
+    #if [[ $ordinal -gt 0 && $MEMBERS -le $ordinal ]]; then
+    #  echo "ERROR! Number of group members is smaller than the ordinal of this mysql service!"
+    #  exit 1
+    #fi
+    mysql -sN -h 127.0.0.1 -e "SELECT * FROM performance_schema.replication_group_members WHERE MEMBER_HOST = '$HOSTNAME' AND MEMBER_STATE='ONLINE'" | grep $HOSTNAME
 
----
-
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: mysql
-spec:
-  selector:
-    matchLabels:
-      role: database
-  serviceName: mysql
-  replicas: 1 
-  template:
-    metadata:
-      labels:
-        role: database
-    spec:
-      initContainers:
-      - name: init-mysql
-        image: mysql:5.7
-        command: ["bash", "/mnt/config-map/int-mysql.sh"]
-        volumeMounts:
-        - name: conf
-          mountPath: /mnt/conf.d
-        - name: config-map
-          mountPath: /mnt/config-map
-      - name: clone-mysql
-        image: gcr.io/google-samples/xtrabackup:1.0
-        command: ["bash", "/mnt/config-map/clone-mysql.sh"]
-        volumeMounts:
-        - name: mysql-data
-          mountPath: /var/lib/mysql
-          subPath: mysql
-        - name: conf
-          mountPath: /etc/mysql/conf.d
-        - name: config-map
-          mountPath: /mnt/config-map
-      containers:
-      - name: mysql
-        image: mysql:5.7
-        env:
-        - name: MYSQL_ALLOW_EMPTY_PASSWORD
-          value: "1"
-        - name: MYSQL_DATABASE
-          value: slurm_acct_db
-        - name: MYSQL_USER
-          value: slurm
-        - name: MYSQL_PASSWORD
-          value: secret
-        ports:
-        - name: mysql
-          containerPort: 3306
-        volumeMounts:
-        - name: mysql-data
-          mountPath: /var/lib/mysql
-          subPath: mysql
-        - name: conf
-          mountPath: /etc/mysql/conf.d
-        - name: config-map
-          mountPath: /mnt/config-map
-        resources:
-          requests:
-            cpu: 2
-            memory: 4Gi
-        livenessProbe:
-          exec:
-            command: ["mysqladmin", "ping"]
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 2
-        readinessProbe:
-          exec:
-            # Check we can execute queries over TCP (skip-networking is off).
-            command: ["mysql", "-h", "127.0.0.1", "-e", "SELECT 1"]
-          initialDelaySeconds: 30
-          periodSeconds: 2
-          timeoutSeconds: 1
-      #- name: xtrabackup
-      #  image: gcr.io/google-samples/xtrabackup:1.0
-      #  ports:
-      #  - name: xtrabackup
-      #    containerPort: 3307
-      #  command: ["bash", "/mnt/config-map/xtrabackup.sh"]
-      #  volumeMounts:
-      #  - name: mysql-data
-      #    mountPath: /var/lib/mysql
-      #    subPath: mysql
-      #  - name: conf
-      #    mountPath: /etc/mysql/conf.d
-      #  - name: config-map
-      #    mountPath: /mnt/config-map
-      #  livenessProbe:
-      #    exec:
-      #      command: ["bash", "/mnt/config-map/readiness.sh"]
-      #    initialDelaySeconds: 60
-      #    periodSeconds: 10
-      #    timeoutSeconds: 2
-      #  resources:
-      #    requests:
-      #      cpu: 100m
-      #      memory: 100Mi
-      volumes:
-      - name: conf
-        emptyDir: {}
-      - name: config-map
-        configMap:
-          name: mysql
-  volumeClaimTemplates: []
-#  - metadata:
-#      name: mysql-data
-#    spec:
-#      storageClassName: slurm-dev--mysql-data
-#      accessModes: ["ReadWriteOnce"]
-#      resources:
-#        requests:
-#          storage: 20Gi

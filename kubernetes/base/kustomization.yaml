@@ -4,13 +4,15 @@ kind: Kustomization
 namespace: slurm
 
 resources:
-- database.yaml
+#- database.yaml
+- database-cm.yaml
+- database-sts.yaml
 - slurmdbd.yaml
 - slurmctld.yaml
 
-images:
-- name: slaclab/slurm-docker
-  newTag: '20191219.0'
+#images:
+#- name: slaclab/slurm-docker
+#  newTag: '20191219.0'
 
 commonLabels:
   app: slurm
