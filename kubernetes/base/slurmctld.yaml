@@ -52,7 +52,9 @@ spec:
     spec:
       containers:
       - name: slurmctld
-        image: slaclab/slurm-docker:latest
+        #image: slaclab/slurm-docker:latest
+        #image: slaclab/slurm-docker:20200122.1
+        image: slaclab/slurm-docker:20200203.1
         env:
         - name: SUPERVISORD_CONFIG
           value: "/etc/slurmctld-supervisord.conf"

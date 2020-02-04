@@ -51,7 +51,8 @@ spec:
     spec:
       containers:
       - name: slurmdbd
-        image: slaclab/slurm-docker:latest
+        #image: slaclab/slurm-docker:latest
+        image: slaclab/slurm-docker:20200203.1
         env:
         - name: SUPERVISORD_CONFIG
           value: "/etc/slurmdbd-supervisord.conf"
@@ -69,11 +70,12 @@ spec:
         livenessProbe:
           exec:
             command:
+            #- sacctmgr
+            #- list
+            #- cluster
             - /bin/bash
             - -c
             - "sacctmgr list cluster && if [ `ss -nlp -H '( sport = 6819 )' | wc -l` == 1 ]; then exit 0; else exit 127; fi"
-        #  tcpSocket:
-        #    port: 6819
           initialDelaySeconds: 15
           periodSeconds: 10
         volumeMounts:
@@ -91,13 +93,8 @@ spec:
             path: slurmdbd.conf
           - key: slurm-for-slurmdbd.conf
             path: slurm.conf
-          #- key: slurm.conf
-          #  path: slurm.conf
-          #- key: slac.conf
-          #  path: slac.conf
       - name: munge-key
         secret:
           secretName: munge
           defaultMode: 256
-  # TODO: add stateful volume
   volumeClaimTemplates: []
