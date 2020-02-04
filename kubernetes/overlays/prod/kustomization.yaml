@@ -38,7 +38,7 @@ commonLabels:
   app: slurm
   environment: prod
 
-images:
-- name: slaclab/slurm-docker
-  newTag: '20200122.1'
+#images:
+#- name: slaclab/slurm-docker
+#  newTag: '20200122.1'
 
