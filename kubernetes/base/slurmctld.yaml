@@ -92,6 +92,24 @@ spec:
           #  port: 6817
           initialDelaySeconds: 15
           periodSeconds: 10
+      - name: telegraf
+        image: docker.io/telegraf:1.13.2
+        resources:
+          limits:
+            memory: 500Mi
+          requests:
+            cpu: 500m
+            memory: 500Mi
+        env:
+        - name: ENVIRONMENT
+          value: prod
+        - name: MONITOR_HOST
+          value: http://influxdb01.slac.stanford.edu:8086
+        - name: MONITOR_DATABASE
+          value: slurm
+        volumeMounts:
+        - name: telegraf-config
+          mountPath: /etc/telegraf
       volumes:
       - name: slurmctld-config
         configMap:
@@ -111,5 +129,8 @@ spec:
         secret:
           secretName: munge
           defaultMode: 256
+      - name: telegraf-config
+        configMap:
+          name: telegraf-slurmctld
   volumeClaimTemplates: []
 

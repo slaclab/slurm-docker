@@ -10,6 +10,11 @@ resources:
 - slurmdbd.yaml
 - slurmctld.yaml
 
+configMapGenerator:
+- name: telegraf-slurmctld
+  files:
+  - telegraf.conf=telegraf-slurmctld.conf
+
 #images:
 #- name: slaclab/slurm-docker
 #  newTag: '20191219.0'
